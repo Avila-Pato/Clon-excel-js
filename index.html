@@ -95,26 +95,56 @@
         // actualizando el estado de la tabla
         // structuredClone es una funcion que me permite clonar el 
         // array del State de una manera profunda para evitar mutacones 
-        function updateCell ({ x, y, value }){
-        const newState = structuredClone(STATE)
-        // obtener la constate de las celda que se va a actualizar
-        const constants = generateConstants(newState)
-        const cell = newState[x][y]
-        
-        cell.computedValue = computeValue(value, constants) // --> span
-        cell.value = value // --> input 
-        // guardar el nuevo estado
-        newState[x][y] = cell
-        // ahora se actualiza el estado el nuevo estado
-        STATE = newState
-        // renderizar la tabla
-        renderSpreadSheet()
+        function updateCell({ x, y, value }) {
+    const newState = structuredClone(STATE);
 
-        }
+    const constants = generateCellsConstants(newState);
+
+    const cell = newState[x][y];
+
+    cell.computedValue = computeValue(value, constants); // --> span
+    cell.value = value; // --> input 
+    
+    console.log("Cell Updated:", cell); // Debugging Line
+
+    // guardar el nuevo estado
+    newState[x][y] = cell;
+
+    computeAllCells(newState, generateCellsConstants(newState));
+    
+    // ahora se actualiza el estado el nuevo estado
+    STATE = newState;
+    
+    // renderizar la tabla
+    renderSpreadSheet();
+}
+
+        
+        function generateCellsConstants(cells) {
+    // Iteración de una matriz
+     return cells.map((rows, x) => {
+        return rows.map((cell, y) => {
+            const letter = getColumn(x); // A
+            const cellId = `${letter}${y + 1}`; // A1
+            return `const ${cellId} = ${cell.computedValue};`
+        }).join('');
+    }).join('');
+}
+
+        function computeAllCells(cells, constants){
+          cells.forEach((rows, x) => {
+             rows.map((cell, y) => {
+                const computedValue = computeValue(cell.value, constants);
+                cell.computedValue = computedValue
+            })
+        })
+    }
         // logica de calculos de la tabla
 
         function computeValue(value, constants){
+
             // si no empieza con un = entonces no es una formula
+            if(typeof value === 'number') return value
            if(!value.startsWith('=')) return value
 
            // si empieza con un = entonces es una formula
@@ -140,16 +170,10 @@
         // simulacion de inyeccion de todas las contastantes de nuestra tabla
         // para que evals pueda calcularlas correctamente
 
-        function generateConstants(cells) {
-    // Iteración de una matriz
-    return cells.map((rows, x) => {
-        return rows.map((cell, y) => {
-            const letter = getColumn(x); // A
-            const cellId = `${letter}${y + 1}`; // A1
-            return `const ${cellId} = ${isNaN(cell.computedValue) ? 0 : cell.computedValue};`
-        }).join('\n');
-    }).join('\n');
-}
+
+    // funcion que me permite actualizar todas las celdas de la tabla
+    
+    
 
 
         const renderSpreadSheet= () => {
