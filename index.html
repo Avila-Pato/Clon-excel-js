@@ -97,10 +97,11 @@
         // array del State de una manera profunda para evitar mutacones 
         function updateCell ({ x, y, value }){
         const newState = structuredClone(STATE)
-        
+        // obtener la constate de las celda que se va a actualizar
+        const constants = generateConstants(newState)
         const cell = newState[x][y]
         
-        cell.computedValue = computeValue(value) // --> span
+        cell.computedValue = computeValue(value, constants) // --> span
         cell.value = value // --> input 
         // guardar el nuevo estado
         newState[x][y] = cell
@@ -112,7 +113,7 @@
         }
         // logica de calculos de la tabla
 
-        function computeValue(value){
+        function computeValue(value, constants){
             // si no empieza con un = entonces no es una formula
            if(!value.startsWith('=')) return value
 
@@ -124,14 +125,32 @@
         
             let computedValue 
             try {
-                computedValue = eval(formula)
+                // funcion que se autoinvoca para generar un scope
+                // para que no entre en conflico lo que este afuera de la scope
+                computedValue = eval(`(()=> {
+                ${constants}
+                return ${formula}
+            })()`)
                 
             } catch (e) {
                 computedValue = `!ERROR: ${e.message}`
             }
             return computedValue
-
         }
+        // simulacion de inyeccion de todas las contastantes de nuestra tabla
+        // para que evals pueda calcularlas correctamente
+
+        function generateConstants(cells) {
+    // Iteración de una matriz
+    return cells.map((rows, x) => {
+        return rows.map((cell, y) => {
+            const letter = getColumn(x); // A
+            const cellId = `${letter}${y + 1}`; // A1
+            return `const ${cellId} = ${isNaN(cell.computedValue) ? 0 : cell.computedValue};`
+        }).join('\n');
+    }).join('\n');
+}
+
 
         const renderSpreadSheet= () => {
            
