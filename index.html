@@ -56,8 +56,13 @@
 
         const ROWS = 10
         const COULUMNS = 5
-
+        // 65 es el codigo de la letra A
+        const FIRST_CHAR_CODE = 65
+        // , (_, i) => i) itera sobre el array y devuelve el indice
         const range = length => Array.from({length}, (_, i) => i)
+        // getColumn es una funcion que me permite obtener el nombre de 
+        // la columna por el A a Z
+        const getColumn = i => String.fromCharCode(FIRST_CHAR_CODE + i)
 
         const renderSpreadSheet= () => {
             const $table = $('table')
@@ -71,9 +76,9 @@
             // le agrega un th a cada colunma uniendolo con el join
             const headerHTML = `<tr>
                 <th></th>
-               
-                ${range(COULUMNS).map(column => `<th>${column}</th>`).join('')}
+                ${range(COULUMNS).map(i => `<th>${getColumn(i)}</th>`).join('')}
                 </tr>`
+                // aqui arriba se esta pintando el abecendario 
 
             $head.innerHTML = headerHTML
 
