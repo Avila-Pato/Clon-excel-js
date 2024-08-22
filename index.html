@@ -56,6 +56,12 @@
             opacity: 0;
             pointer-events: none;
             width: 100%;
+
+            /* // si tiene el focus se mostrata */
+            &:focus {
+                outline: 1px solid #000;
+                opacity: 1;
+            }
         }
         
     </style>
@@ -64,6 +70,9 @@
         
         const $ = el => document.querySelector(el);
         const  $$ = el => document.querySelectorAll(el);
+        const $table = $('table')
+        const $head = $('thead')
+        const $body = $('tbody')
 
         const ROWS = 10
         const COULUMNS = 5
@@ -85,9 +94,7 @@
         // console.log(STATE)
 
         const renderSpreadSheet= () => {
-            const $table = $('table')
-            const $head = $('thead')
-            const $body = $('tbody')
+           
 
             // tr es la fila entera
             // th es la celda que estaria dentro de la fila
@@ -110,7 +117,7 @@
                     ${times(COULUMNS).map(column => 
                     `<td data-x="${column}" data-y="${row}">
                         <span>${STATE[column][row].computedValue}</span>
-                        <input type="text" value=">${STATE[column][row].value} " />
+                        <input type="text" value="${STATE[column][row].value} " />
                         </td>
                     `).join('')}
                 </tr>`
@@ -119,6 +126,43 @@
             $body.innerHTML = bodyHTML
 
         }
+
+        // escuchar los eventos de la tabla
+        $table.addEventListener('click', event => {
+            // td escucha los eventos de la tabla 
+           const td = event.target.closest('td')
+           if(!td) return
+
+           //recuperar elementos
+           const {x, y} = td.dataset
+           const input = td.querySelector('input')
+           const span = td.querySelector('span')
+
+           // dejar el cursor del input al principio cuando se hace click 
+           // para ello ahi que recuperar la posiciond final de la longitud del valor
+           const end = input.value.length
+           // indicar rango de la posicion final del input
+        //    input.setSelectionRange(end, end)
+            // otra opcion es indicar 0, end para seleccionar todo el texto
+            input.setSelectionRange(0, end)
+
+
+           // se agrega el evento focus cuando se hace click en el input
+           input.focus()
+
+           // se agrega el evento blur cuando se hace click fuera del input
+           // para salir del input
+           input.addEventListener('blur', () => {
+            // si el valor que tengo es el mismo que valor que tenemos
+            // guardamos lo mismo
+            // pero si son diferentes se agrega un update
+            if(input.value === STATE[x][y].value) return
+            updateCell(x, y,value,  input.value)
+            // el evento blur se ejecuta solo 1 vez  y se puede ejucutar en
+            // cualquier eventListener
+        }, {once: true})
+    })
+                     
         renderSpreadSheet()
     </script>
 </head>
