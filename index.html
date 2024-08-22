@@ -100,9 +100,7 @@
         
         const cell = newState[x][y]
         
-        
-        const computedValue = Number(value)
-        cell.computedValue = computedValue // --> span
+        cell.computedValue = computeValue(value) // --> span
         cell.value = value // --> input 
         // guardar el nuevo estado
         newState[x][y] = cell
@@ -110,6 +108,28 @@
         STATE = newState
         // renderizar la tabla
         renderSpreadSheet()
+
+        }
+        // logica de calculos de la tabla
+
+        function computeValue(value){
+            // si no empieza con un = entonces no es una formula
+           if(!value.startsWith('=')) return value
+
+           // si empieza con un = entonces es una formula
+           const formula = value.slice(1)
+            //  se crea una variable  usando el trycatch 
+            // usando eval para evaluar la formula
+            // solo es recomendable usarlo en casos muy especificos
+        
+            let computedValue 
+            try {
+                computedValue = eval(formula)
+                
+            } catch (e) {
+                computedValue = `!ERROR: ${e.message}`
+            }
+            return computedValue
 
         }
 
