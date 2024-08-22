@@ -89,13 +89,32 @@
 
         // creando STATE para iniciarlizar los valores de toda la tabla
         let STATE = times(COULUMNS)
-        .map(i => times(ROWS).map(j => ({computedValue: j, value: j})))
-
+        .map(i => times(ROWS).map(j => ({computedValue: 0, value: 0})))
         // console.log(STATE)
+
+        // actualizando el estado de la tabla
+        // structuredClone es una funcion que me permite clonar el 
+        // array del State de una manera profunda para evitar mutacones 
+        function updateCell ({ x, y, value }){
+        const newState = structuredClone(STATE)
+        
+        const cell = newState[x][y]
+        
+        
+        const computedValue = Number(value)
+        cell.computedValue = computedValue // --> span
+        cell.value = value // --> input 
+        // guardar el nuevo estado
+        newState[x][y] = cell
+        // ahora se actualiza el estado el nuevo estado
+        STATE = newState
+        // renderizar la tabla
+        renderSpreadSheet()
+
+        }
 
         const renderSpreadSheet= () => {
            
-
             // tr es la fila entera
             // th es la celda que estaria dentro de la fila
             // range es una funcion que me permite crear 
@@ -150,6 +169,11 @@
            // se agrega el evento focus cuando se hace click en el input
            input.focus()
 
+           // agregar el evento input para actualizar el valor al aprettar enter
+           input.addEventListener('keydown', (event) => {
+            if(event.key === 'Enter') input.blur()
+           })
+
            // se agrega el evento blur cuando se hace click fuera del input
            // para salir del input
            input.addEventListener('blur', () => {
@@ -157,7 +181,8 @@
             // guardamos lo mismo
             // pero si son diferentes se agrega un update
             if(input.value === STATE[x][y].value) return
-            updateCell(x, y,value,  input.value)
+            
+            updateCell({x, y,value: input.value})
             // el evento blur se ejecuta solo 1 vez  y se puede ejucutar en
             // cualquier eventListener
         }, {once: true})
