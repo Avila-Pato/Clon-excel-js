@@ -39,6 +39,17 @@
             width: 64px;
             height: 20px;
             vertical-align: middle;
+            position: relative;
+        }
+
+        span,
+        input{
+            position: absolute;
+            inset: 0;
+            vertical-align: middle;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
         }
         input {
             border: 0;
@@ -59,10 +70,19 @@
         // 65 es el codigo de la letra A
         const FIRST_CHAR_CODE = 65
         // , (_, i) => i) itera sobre el array y devuelve el indice
-        const range = length => Array.from({length}, (_, i) => i)
+
+        
+
+        const times = length => Array.from({length}, (_, i) => i)
         // getColumn es una funcion que me permite obtener el nombre de 
         // la columna por el A a Z
         const getColumn = i => String.fromCharCode(FIRST_CHAR_CODE + i)
+
+        // creando STATE para iniciarlizar los valores de toda la tabla
+        let STATE = times(COULUMNS)
+        .map(i => times(ROWS).map(j => ({computedValue: j, value: j})))
+
+        // console.log(STATE)
 
         const renderSpreadSheet= () => {
             const $table = $('table')
@@ -76,7 +96,7 @@
             // le agrega un th a cada colunma uniendolo con el join
             const headerHTML = `<tr>
                 <th></th>
-                ${range(COULUMNS).map(i => `<th>${getColumn(i)}</th>`).join('')}
+                ${times(COULUMNS).map(i => `<th>${getColumn(i)}</th>`).join('')}
                 </tr>`
                 // aqui arriba se esta pintando el abecendario 
 
@@ -84,13 +104,13 @@
 
             // bodyHTML es una funcion que me permite 
             // crear la tabla con filas y columnas
-                const bodyHTML = range(ROWS).map(row =>{
+                const bodyHTML = times(ROWS).map(row =>{
                     return `<tr>
                     <td>${row + 1}</td>
-                    ${range(COULUMNS).map(column => 
+                    ${times(COULUMNS).map(column => 
                     `<td data-x="${column}" data-y="${row}">
-                        <span></span>
-                        <input type="text" value="0">
+                        <span>${STATE[column][row].computedValue}</span>
+                        <input type="text" value=">${STATE[column][row].value} " />
                         </td>
                     `).join('')}
                 </tr>`
